@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	goxerialsnappy "github.com/segmentio/kafka-go/compress/snappy/go-xerial-snappy"
+	goxerialsnappy "github.com/deanMdreon/kafka-go/compress/snappy/go-xerial-snappy"
 	"github.com/klauspost/compress/snappy"
 )
 

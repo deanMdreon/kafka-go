@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/deanMdreon/kafka-go/testing"
 )
 
 func TestClientElectLeaders(t *testing.T) {

@@ -1,4 +1,4 @@
-# kafka-go [![CircleCI](https://circleci.com/gh/segmentio/kafka-go.svg?style=shield)](https://circleci.com/gh/segmentio/kafka-go) [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/kafka-go)](https://goreportcard.com/report/github.com/segmentio/kafka-go) [![GoDoc](https://godoc.org/github.com/segmentio/kafka-go?status.svg)](https://godoc.org/github.com/segmentio/kafka-go)
+# kafka-go [![CircleCI](https://circleci.com/gh/segmentio/kafka-go.svg?style=shield)](https://circleci.com/gh/segmentio/kafka-go) [![Go Report Card](https://goreportcard.com/badge/github.com/deanMdreon/kafka-go)](https://goreportcard.com/report/github.com/deanMdreon/kafka-go) [![GoDoc](https://godoc.org/github.com/deanMdreon/kafka-go?status.svg)](https://godoc.org/github.com/deanMdreon/kafka-go)
 
 ## Motivations
 
@@ -7,23 +7,23 @@ client libraries for Kafka at the time of this writing was not ideal. The availa
 options were:
 
 - [sarama](https://github.com/Shopify/sarama), which is by far the most popular
-but is quite difficult to work with. It is poorly documented, the API exposes
-low level concepts of the Kafka protocol, and it doesn't support recent Go features
-like [contexts](https://golang.org/pkg/context/). It also passes all values as
-pointers which causes large numbers of dynamic memory allocations, more frequent
-garbage collections, and higher memory usage.
+  but is quite difficult to work with. It is poorly documented, the API exposes
+  low level concepts of the Kafka protocol, and it doesn't support recent Go features
+  like [contexts](https://golang.org/pkg/context/). It also passes all values as
+  pointers which causes large numbers of dynamic memory allocations, more frequent
+  garbage collections, and higher memory usage.
 
 - [confluent-kafka-go](https://github.com/confluentinc/confluent-kafka-go) is a
-cgo based wrapper around [librdkafka](https://github.com/edenhill/librdkafka),
-which means it introduces a dependency to a C library on all Go code that uses
-the package. It has much better documentation than sarama but still lacks support
-for Go contexts.
+  cgo based wrapper around [librdkafka](https://github.com/edenhill/librdkafka),
+  which means it introduces a dependency to a C library on all Go code that uses
+  the package. It has much better documentation than sarama but still lacks support
+  for Go contexts.
 
 - [goka](https://github.com/lovoo/goka) is a more recent Kafka client for Go
-which focuses on a specific usage pattern. It provides abstractions for using Kafka
-as a message passing bus between services rather than an ordered log of events, but
-this is not the typical use case of Kafka for us at Segment. The package also
-depends on sarama for all interactions with Kafka.
+  which focuses on a specific usage pattern. It provides abstractions for using Kafka
+  as a message passing bus between services rather than an ordered log of events, but
+  this is not the typical use case of Kafka for us at Segment. The package also
+  depends on sarama for all interactions with Kafka.
 
 This is where `kafka-go` comes into play. It provides both low and high level
 APIs for interacting with Kafka, mirroring concepts and implementing interfaces of
@@ -46,12 +46,13 @@ in the Kafka API may not yet be implemented in the client.
 
 `kafka-go` requires Go version 1.15 or later.
 
-## Connection [![GoDoc](https://godoc.org/github.com/segmentio/kafka-go?status.svg)](https://godoc.org/github.com/segmentio/kafka-go#Conn)
+## Connection [![GoDoc](https://godoc.org/github.com/deanMdreon/kafka-go?status.svg)](https://godoc.org/github.com/deanMdreon/kafka-go#Conn)
 
 The `Conn` type is the core of the `kafka-go` package. It wraps around a raw
 network connection to expose a low-level API to a Kafka server.
 
 Here are some examples showing typical use of a connection object:
+
 ```go
 // to produce messages
 topic := "my-topic"
@@ -76,6 +77,7 @@ if err := conn.Close(); err != nil {
     log.Fatal("failed to close writer:", err)
 }
 ```
+
 ```go
 // to consume messages
 topic := "my-topic"
@@ -108,7 +110,9 @@ if err := conn.Close(); err != nil {
 ```
 
 ### To Create Topics
+
 By default kafka has the `auto.create.topics.enable='true'` (`KAFKA_AUTO_CREATE_TOPICS_ENABLE='true'` in the wurstmeister/kafka kafka docker image). If this value is set to `'true'` then topics will be created as a side effect of `kafka.DialLeader` like so:
+
 ```go
 // to create topics when auto.create.topics.enable='true'
 conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "my-topic", 0)
@@ -118,6 +122,7 @@ if err != nil {
 ```
 
 If `auto.create.topics.enable='false'` then you will need to create topics explicitly like so:
+
 ```go
 // to create topics when auto.create.topics.enable='false'
 topic := "my-topic"
@@ -155,6 +160,7 @@ if err != nil {
 ```
 
 ### To Connect To Leader Via a Non-leader Connection
+
 ```go
 // to connect to the kafka leader via an existing non-leader connection rather than using DialLeader
 conn, err := kafka.Dial("tcp", "localhost:9092")
@@ -175,6 +181,7 @@ defer connLeader.Close()
 ```
 
 ### To list topics
+
 ```go
 conn, err := kafka.Dial("tcp", "localhost:9092")
 if err != nil {
@@ -197,11 +204,10 @@ for k := range m {
 }
 ```
 
-
 Because it is low level, the `Conn` type turns out to be a great building block
 for higher level abstractions, like the `Reader` for example.
 
-## Reader [![GoDoc](https://godoc.org/github.com/segmentio/kafka-go?status.svg)](https://godoc.org/github.com/segmentio/kafka-go#Reader)
+## Reader [![GoDoc](https://godoc.org/github.com/deanMdreon/kafka-go?status.svg)](https://godoc.org/github.com/deanMdreon/kafka-go#Reader)
 
 A `Reader` is another concept exposed by the `kafka-go` package, which intends
 to make it simpler to implement the typical use case of consuming from a single
@@ -245,7 +251,7 @@ if err := r.Close(); err != nil {
 
 ### Consumer Groups
 
-```kafka-go``` also supports Kafka consumer groups including broker managed offsets.
+`kafka-go` also supports Kafka consumer groups including broker managed offsets.
 To enable consumer groups, simply specify the GroupID in the ReaderConfig.
 
 ReadMessage automatically commits offsets when using consumer groups.
@@ -275,16 +281,16 @@ if err := r.Close(); err != nil {
 
 There are a number of limitations when using consumer groups:
 
-* ```(*Reader).SetOffset``` will return an error when GroupID is set
-* ```(*Reader).Offset``` will always return ```-1``` when GroupID is set
-* ```(*Reader).Lag``` will always return ```-1``` when GroupID is set
-* ```(*Reader).ReadLag``` will return an error when GroupID is set
-* ```(*Reader).Stats``` will return a partition of ```-1``` when GroupID is set
+- `(*Reader).SetOffset` will return an error when GroupID is set
+- `(*Reader).Offset` will always return `-1` when GroupID is set
+- `(*Reader).Lag` will always return `-1` when GroupID is set
+- `(*Reader).ReadLag` will return an error when GroupID is set
+- `(*Reader).Stats` will return a partition of `-1` when GroupID is set
 
 ### Explicit Commits
 
-```kafka-go``` also supports explicit commits.  Instead of calling ```ReadMessage```,
-call ```FetchMessage``` followed by ```CommitMessages```.
+`kafka-go` also supports explicit commits. Instead of calling `ReadMessage`,
+call `FetchMessage` followed by `CommitMessages`.
 
 ```go
 ctx := context.Background()
@@ -309,10 +315,9 @@ and 2 for that partition.
 
 ### Managing Commits
 
-By default, CommitMessages will synchronously commit offsets to Kafka.  For
+By default, CommitMessages will synchronously commit offsets to Kafka. For
 improved performance, you can instead periodically commit offsets to Kafka
 by setting CommitInterval on the ReaderConfig.
-
 
 ```go
 // make a new reader that consumes from topic-A
@@ -326,7 +331,7 @@ r := kafka.NewReader(kafka.ReaderConfig{
 })
 ```
 
-## Writer [![GoDoc](https://godoc.org/github.com/segmentio/kafka-go?status.svg)](https://godoc.org/github.com/segmentio/kafka-go#Writer)
+## Writer [![GoDoc](https://godoc.org/github.com/deanMdreon/kafka-go?status.svg)](https://godoc.org/github.com/deanMdreon/kafka-go#Writer)
 
 To produce messages to Kafka, a program may use the low-level `Conn` API, but
 the package also provides a higher level `Writer` type which is more appropriate
@@ -419,7 +424,7 @@ The `Writer` will return an error if it detects this ambiguity.
 #### Sarama
 
 If you're switching from Sarama and need/want to use the same algorithm for message
-partitioning, you can use the ```kafka.Hash``` balancer.  ```kafka.Hash``` routes
+partitioning, you can use the `kafka.Hash` balancer. `kafka.Hash` routes
 messages to the same partitions that Sarama's default partitioner would route to.
 
 ```go
@@ -432,8 +437,8 @@ w := &kafka.Writer{
 
 #### librdkafka and confluent-kafka-go
 
-Use the ```kafka.CRC32Balancer``` balancer to get the same behaviour as librdkafka's
-default ```consistent_random``` partition strategy.
+Use the `kafka.CRC32Balancer` balancer to get the same behaviour as librdkafka's
+default `consistent_random` partition strategy.
 
 ```go
 w := &kafka.Writer{
@@ -445,8 +450,8 @@ w := &kafka.Writer{
 
 #### Java
 
-Use the ```kafka.Murmur2Balancer``` balancer to get the same behaviour as the canonical
-Java client's default partitioner.  Note: the Java class allows you to directly specify
+Use the `kafka.Murmur2Balancer` balancer to get the same behaviour as the canonical
+Java client's default partitioner. Note: the Java class allows you to directly specify
 the partition which is not permitted.
 
 ```go
@@ -470,7 +475,7 @@ w := &kafka.Writer{
 ```
 
 The `Reader` will by determine if the consumed messages are compressed by
-examining the message attributes.  However, the package(s) for all expected
+examining the message attributes. However, the package(s) for all expected
 codecs must be imported so that they get loaded correctly.
 
 _Note: in versions prior to 0.4 programs had to import compression packages to
@@ -480,8 +485,7 @@ longer the case and import of the compression packages are now no-ops._
 ## TLS Support
 
 For a bare bones Conn type or in the Reader/Writer configs you can specify a dialer option for TLS support. If the TLS field is nil, it will not connect with TLS.
-*Note:* Connecting to a Kafka cluster with TLS enabled without configuring TLS on the Conn/Reader/Writer can manifest in opaque io.ErrUnexpectedEOF errors.
-
+_Note:_ Connecting to a Kafka cluster with TLS enabled without configuring TLS on the Conn/Reader/Writer can manifest in opaque io.ErrUnexpectedEOF errors.
 
 ### Connection
 
@@ -551,7 +555,8 @@ You can specify an option on the `Dialer` to use SASL authentication. The `Diale
 
 ### SASL Authentication Types
 
-#### [Plain](https://godoc.org/github.com/segmentio/kafka-go/sasl/plain#Mechanism)
+#### [Plain](https://godoc.org/github.com/deanMdreon/kafka-go/sasl/plain#Mechanism)
+
 ```go
 mechanism := plain.Mechanism{
     Username: "username",
@@ -559,7 +564,8 @@ mechanism := plain.Mechanism{
 }
 ```
 
-#### [SCRAM](https://godoc.org/github.com/segmentio/kafka-go/sasl/scram#Mechanism)
+#### [SCRAM](https://godoc.org/github.com/deanMdreon/kafka-go/sasl/scram#Mechanism)
+
 ```go
 mechanism, err := scram.Mechanism(scram.SHA512, "username", "password")
 if err != nil {
@@ -583,7 +589,6 @@ dialer := &kafka.Dialer{
 
 conn, err := dialer.DialContext(ctx, "tcp", "localhost:9093")
 ```
-
 
 ### Reader
 
@@ -687,11 +692,9 @@ if err := r.Close(); err != nil {
 }
 ```
 
-
 ## Logging
 
 For visiblity into the operations of the Reader/Writer types, configure a logger on creation.
-
 
 ### Reader
 
@@ -723,8 +726,6 @@ w := &kafka.Writer{
 	ErrorLogger: kafka.LoggerFunc(logf),
 }
 ```
-
-
 
 ## Testing
 

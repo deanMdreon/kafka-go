@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/deanMdreon/kafka-go/testing"
 )
 
 func TestClientIncrementalAlterConfigs(t *testing.T) {
